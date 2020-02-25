@@ -2027,8 +2027,9 @@ __webpack_require__.r(__webpack_exports__);
 
       var skycons = new Skycons({
         'color': 'white'
-      });
-      fetch("/api/weather?lat=".concat(this.location.lat, "&lng=").concat(this.location.lng)).then(function (response) {
+      }); //fetch(`/api/weather?lat=${this.location.lat}&lng=${this.location.lng}`)
+
+      fetch("/api/weather/".concat(this.location.lat, "/").concat(this.location.lng)).then(function (response) {
         return response.json();
       }).then(function (data) {
         _this2.currentTemperature.actual = Math.round(data.currently.temperature);
