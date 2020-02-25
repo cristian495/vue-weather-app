@@ -1966,91 +1966,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
-/*
-export default {
-  mounted() {
-    this.fetchData()
-    
-    var placesAutocomplete = places({
-        appId: 'pl15HH9S78RC',
-        apiKey: 'f0d29197423092b9953f360f408e6a12',
-        container: document.querySelector('#address')
-      });
-    var $address = document.querySelector('#address-value')
-      placesAutocomplete.on('change', (e) => {
-        $address.textContent = e.suggestion.value
-        this.location.name = `${e.suggestion.name}, ${e.suggestion.country}`
-        this.location.lat = e.suggestion.latlng.lat
-        this.location.lng = e.suggestion.latlng.lng
-      });
-      placesAutocomplete.on('clear', function () {
-        $address.textContent = 'none';
-      });
-  },
-  data() {
-    return {
-      currentTemperature: {
-        actual: '',
-        feels: '',
-        summary: '',
-        icon: '',
-      },
-      daily: [],
-      location: {
-        name: 'Toronto, Canada',
-        lat: 43.6532,
-        lng: -79.38323,
-      }
-    }
-  },
-  methods: {
-    fetchData() {
-      var skycons = new Skycons({'color': 'white'});
-      fetch(`/api/weather?lat=${this.location.lat}&lng=${this.location.lng}`)
-        .then(response => response.json())
-        .then(data => {
-          this.currentTemperature.actual = Math.round(data.currently.temperature)
-          this.currentTemperature.feels = Math.round(data.currently.apparentTemperature)
-          this.currentTemperature.summary = data.currently.summary
-          this.currentTemperature.icon = this.toKebabCase(data.currently.icon)
-          this.daily = data.daily.data
-          skycons.add('iconCurrent', this.currentTemperature.icon)
-          skycons.play()
-          this.$nextTick(() => {
-            skycons.add('icon1', document.getElementById('icon1').getAttribute('data-icon'))
-            skycons.add('icon2', document.getElementById('icon2').getAttribute('data-icon'))
-            skycons.add('icon3', document.getElementById('icon3').getAttribute('data-icon'))
-            skycons.add('icon4', document.getElementById('icon4').getAttribute('data-icon'))
-            skycons.add('icon5', document.getElementById('icon5').getAttribute('data-icon'))
-            skycons.play()
-          })
-        })
-    },
-    toKebabCase(stringToConvert) {
-      return stringToConvert.split(' ').join('-')
-    },
-    toDayOfWeek(timestamp) {
-      const newDate = new Date(timestamp*1000)
-      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT']
-      return days[newDate.getDay()]
-    }
-  },
-  watch: {
-    locationc(){
-        this.fetchData()
-        alert('hoasd');
-      }
-    },
-  computed: {
-    dailyFiveDays() {
-      return this.daily.filter((day, index) => index < 5 )
-    },
-    locationc(){
-        return this.location.name;
-    }
-  }
-}*/
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     var _this = this;
@@ -49902,15 +49817,14 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /*!************************************************!*\
   !*** ./resources/js/components/WeatherApp.vue ***!
   \************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _WeatherApp_vue_vue_type_template_id_385e73b8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./WeatherApp.vue?vue&type=template&id=385e73b8& */ "./resources/js/components/WeatherApp.vue?vue&type=template&id=385e73b8&");
 /* harmony import */ var _WeatherApp_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./WeatherApp.vue?vue&type=script&lang=js& */ "./resources/js/components/WeatherApp.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _WeatherApp_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _WeatherApp_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -49940,7 +49854,7 @@ component.options.__file = "resources/js/components/WeatherApp.vue"
 /*!*************************************************************************!*\
   !*** ./resources/js/components/WeatherApp.vue?vue&type=script&lang=js& ***!
   \*************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
