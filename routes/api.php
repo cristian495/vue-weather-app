@@ -17,11 +17,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/weather/{lat}/{lng}', function (Request $request) {
+Route::get('/weather/', function (Request $request) {
 
     $apiKey = config('services.darksky.key');
-    $lat = $request->lat;
-    $lng = $request->lng;
+    $lat = $request->get('lat');
+    $lng = $request->get('lng');
 
     $response = Zttp::get("https://api.darksky.net/forecast/$apiKey/$lat,$lng?units=ca");
     

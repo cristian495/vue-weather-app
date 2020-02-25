@@ -121,8 +121,8 @@
                 var skycons = new Skycons({'color':'white'});
                 
 
-                //fetch(`/api/weather?lat=${this.location.lat}&lng=${this.location.lng}`)
-                fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
+                fetch(`/api/weather?lat=${this.location.lat}&lng=${this.location.lng}`)
+                //fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
                     .then(response=>response.json())
                     .then(data=>{
                         this.currentTemperature.actual = Math.round(data.currently.temperature)
