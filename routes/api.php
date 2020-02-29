@@ -23,7 +23,7 @@ Route::get('/weather/', function (Request $request) {
     $lat = $request->get('lat');
     $lng = $request->get('lng');
 
-    $response = Zttp::get("https://api.darksky.net/forecast/$apiKey/$lat,$lng?units=ca");
+    $response = Zttp::get("https://api.darksky.net/forecast/$apiKey/$lat,$lng?lang=es&units=ca");
     
     return $response->json();
 

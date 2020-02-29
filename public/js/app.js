@@ -153,29 +153,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
-    var _this = this;
-
-    this.fetchData();
-    var placesAutocomplete = places({
-      appId: 'pl15HH9S78RC',
-      apiKey: 'f0d29197423092b9953f360f408e6a12',
-      container: document.querySelector('#address')
-    }).configure({
-      type: 'city',
-      aroundLatLngViaIP: false
-    });
-    var $address = document.querySelector('#address-value');
-    placesAutocomplete.on('change', function (e) {
-      $address.textContent = e.suggestion.value;
-      _this.location.name = "".concat(e.suggestion.name, ",").concat(e.suggestion.country);
-      _this.location.lat = e.suggestion.latlng.lat;
-      _this.location.lng = e.suggestion.latlng.lng;
-    });
-    placesAutocomplete.on('clear', function () {
-      $address.textContent = 'none';
-    });
+    this.checkGeolocation();
+    this.algoliaInit(); //this.setLocation();
+    //this.fetchData();
   },
   watch: {
     location: {
@@ -198,29 +192,84 @@ __webpack_require__.r(__webpack_exports__);
         actual: '',
         feels: '',
         summary: '',
-        icon: ''
+        icon: '',
+        humidity: ''
       },
       daily: [],
       location: {
-        name: 'Toronto, Canada',
-        lat: 37.8267,
-        lng: -122.4233
-      }
+        name: '',
+        coords: {
+          latitude: null,
+          longitude: null
+        }
+      },
+      errorStr: null,
+      gettingLocation: false
     };
   },
   methods: {
+    algoliaInit: function algoliaInit() {
+      var _this = this;
+
+      var placesAutocomplete = places({
+        appId: 'pl15HH9S78RC',
+        apiKey: 'f0d29197423092b9953f360f408e6a12',
+        container: document.querySelector('#address')
+      }).configure({
+        type: 'city',
+        hitsPerPage: 1,
+        aroundLatLngViaIP: true
+      });
+      placesAutocomplete.search().then(function (suggestions) {
+        if (!suggestions[0]) {
+          return;
+        }
+
+        var formattedCity = suggestions[0].name + ', ' + suggestions[0].administrative + ', ' + suggestions[0].country;
+        var search = document.querySelector("#address");
+        search.value = formattedCity; //this.setLocation(formattedCity);
+
+        _this.setLocation(suggestions[0].latlng.lat, suggestions[0].latlng.lng, formattedCity);
+      });
+      placesAutocomplete.on('change', function (e) {
+        var formattedCity = e.suggestion.name + ', ' + e.suggestion.administrative + ', ' + e.suggestion.country; //this.setLocation(formattedCity);                   
+
+        _this.setLocation(e.suggestion.latlng.lat, e.suggestion.latlng.lng, formattedCity);
+      });
+    },
+    //            setLocation(formattedCity)
+    setLocation: function setLocation() {
+      var lat = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var lng = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var formattedCity = arguments.length > 2 ? arguments[2] : undefined;
+
+      /*
+      navigator.geolocation.getCurrentPosition((pos)  => {
+          this.gettingLocation = false;
+          formattedCity != null ? this.location.name = formattedCity : null;
+          this.location.coords.latitude = pos.coords.latitude;
+          this.location.coords.longitude = pos.coords.longitude;
+      }, err => {
+          this.gettingLocation = false;
+          this.errorStr = err.message;
+      }); */
+      this.location.coords.latitude = lat;
+      this.location.coords.longitude = lng;
+      this.location.name = formattedCity;
+    },
     fetchData: function fetchData() {
       var _this2 = this;
 
       var skycons = new Skycons({
         'color': 'white'
       });
-      fetch("/api/weather?lat=".concat(this.location.lat, "&lng=").concat(this.location.lng)) //fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
+      fetch("/api/weather?lat=".concat(this.location.coords.latitude, "&lng=").concat(this.location.coords.longitude)) //fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
       .then(function (response) {
         return response.json();
       }).then(function (data) {
         _this2.currentTemperature.actual = Math.round(data.currently.temperature);
         _this2.currentTemperature.feels = Math.round(data.currently.apparentTemperature);
+        _this2.currentTemperature.humidity = data.currently.humidity * 100;
         _this2.currentTemperature.summary = data.currently.summary;
         _this2.currentTemperature.icon = _this2.toKebabCase(data.currently.icon);
         _this2.daily = data.daily.data;
@@ -244,6 +293,12 @@ __webpack_require__.r(__webpack_exports__);
       var newDate = new Date(timestamp * 1000);
       var days = ['DOM', 'LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB'];
       return days[newDate.getDay()];
+    },
+    checkGeolocation: function checkGeolocation() {
+      if (!"geolocation" in navigator) {
+        this.errorStr = 'Geolocalizacion no disponible';
+        return;
+      }
     }
   }
 });
@@ -734,6 +789,20 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "text-white mb-8" }, [
+    _vm.errorStr
+      ? _c("div", [
+          _vm._v(
+            "\n        Sorry, but the following error\n        occurred: " +
+              _vm._s(_vm.errorStr) +
+              "\n    "
+          )
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.gettingLocation
+      ? _c("div", [_c("i", [_vm._v("Getting your location...")])])
+      : _vm._e(),
+    _vm._v(" "),
     _vm._m(0),
     _vm._v(" "),
     _c(
@@ -758,7 +827,7 @@ var render = function() {
                 _vm._v(" "),
                 _c("div", [
                   _vm._v(
-                    "Feels like" + _vm._s(_vm.currentTemperature.feels) + "°C"
+                    "Humedad " + _vm._s(_vm.currentTemperature.humidity) + "%"
                   )
                 ])
               ]),
@@ -768,7 +837,7 @@ var render = function() {
                   _vm._v(_vm._s(_vm.currentTemperature.summary))
                 ]),
                 _vm._v(" "),
-                _c("div", [_vm._v(_vm._s(_vm.location.name))])
+                _c("div", [_vm._v(" " + _vm._s(_vm.location.name))])
               ])
             ]),
             _vm._v(" "),
@@ -823,7 +892,7 @@ var render = function() {
                   ]),
                   _vm._v(" "),
                   _c("div", [
-                    _vm._v("-" + _vm._s(Math.round(day.temperatureLow)) + " °C")
+                    _vm._v(_vm._s(Math.round(day.temperatureLow)) + " °C")
                   ])
                 ])
               ]
@@ -843,17 +912,8 @@ var staticRenderFns = [
     return _c("div", { staticClass: "places-input text-gray-800" }, [
       _c("input", {
         staticClass: "form-control",
-        attrs: {
-          type: "search",
-          id: "address",
-          placeholder: "Where are we going?"
-        }
-      }),
-      _vm._v(" "),
-      _c("p", [
-        _vm._v("Selected: "),
-        _c("strong", { attrs: { id: "address-value" } }, [_vm._v("none")])
-      ])
+        attrs: { id: "address", placeholder: "ej. miraflores, Lima, Perú" }
+      })
     ])
   }
 ]
