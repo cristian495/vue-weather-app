@@ -1,13 +1,13 @@
 <template>
     <div class="text-white mb-8">
-         <div v-if="errorStr">
+
+        <div class="text-balck mb-8">
+            <div v-if="errorStr" clas>
             Sorry, but the following error
             occurred: {{errorStr}}
+            </div>
         </div>
-        
-        <div v-if="gettingLocation">
-            <i>Getting your location...</i>
-        </div>
+         
 
 
         <div class="places-input text-gray-800">
@@ -28,7 +28,7 @@
                     </div>
                     <div class="mx-5">
                         <div class="font-semibold">{{currentTemperature.summary}}</div>
-                        <div > {{location.name}}</div>
+                        <div > {{location.name.district}}, {{location.name.administrative}}, {{location.name.country}}</div>
                     </div>
                 </div>
                 <div>
@@ -74,8 +74,6 @@
         mounted() {
             this.checkGeolocation();
             this.algoliaInit();
-            //this.setLocation();
-            //this.fetchData();
 
         },
         watch:{            
@@ -103,14 +101,14 @@
                 },
                 daily: [],
                 location:{
-                    name:'',
+                    name:{country:'',administrative:'',district:''},
                     coords:{
                         latitude:null,
                         longitude:null,
                     }
                 },
                 errorStr:null,
-                gettingLocation:false,
+                availibleApiGeolocation:false,
             }
         },
 
@@ -135,26 +133,27 @@
                         return;
                     }
 
-                    var formattedCity = suggestions[0].name + ', '
-                                        + suggestions[0].administrative+ ', ' 
-                                        + suggestions[0].country;
-
-                    var search = document.querySelector("#address");
-                    search.value = formattedCity;
-                     
-                    //this.setLocation(formattedCity);
-                    this.setLocation(suggestions[0].latlng.lat,suggestions[0].latlng.lng,formattedCity);
+                    let nameLocation = {
+                        district :  suggestions[0].name,
+                        administrative : suggestions[0].administrative ? suggestions[0].administrative  : '',
+                        country : suggestions[0].country,
+                    } 
+                        
+                    
+                    this.setLocation(suggestions[0].latlng.lat,suggestions[0].latlng.lng,nameLocation);
 
                 });             
 
 
                 placesAutocomplete.on('change', (e) => {
-                    let formattedCity = e.suggestion.name + ', '
-                                    + e.suggestion.administrative+ ', ' 
-                                    + e.suggestion.country;
 
-                    //this.setLocation(formattedCity);                   
-                    this.setLocation(e.suggestion.latlng.lat,e.suggestion.latlng.lng,formattedCity);
+                    let nameLocation = {
+                        district :   e.suggestion.name,
+                        administrative : e.suggestion.administrative ? e.suggestion.administrative : e.suggestion.hit.administrative[0],
+                        country : e.suggestion.country,
+                    } 
+
+                    this.setLocation(e.suggestion.latlng.lat,e.suggestion.latlng.lng,nameLocation);
 
 
                 });
@@ -162,25 +161,42 @@
         
 
 //            setLocation(formattedCity)
-            setLocation(lat=null,lng=null,formattedCity)
+            setLocation(lat=null,lng=null,nameLocation)
             {            
-                   
-                /*
-                navigator.geolocation.getCurrentPosition((pos)  => {
-                    this.gettingLocation = false;
-                    formattedCity != null ? this.location.name = formattedCity : null;
-                    this.location.coords.latitude = pos.coords.latitude;
-                    this.location.coords.longitude = pos.coords.longitude;
-                }, err => {
-                    this.gettingLocation = false;
-                    this.errorStr = err.message;
-                }); */      
 
-                
-                this.location.coords.latitude = lat;
-                this.location.coords.longitude = lng;
-                this.location.name = formattedCity;
+                if(this.availibleApiGeolocation)
+                {     
+                    console.log('se usó el api de geolocalizacion para obtener las coordenadas');
 
+                    /*
+                    this.gettingLocation = true;
+
+                    navigator.geolocation.getCurrentPosition((pos)  => {
+
+                        this.gettingLocation = false;
+
+                        this.location.name = formattedCity;
+
+                        this.location.coords.latitude = pos.coords.latitude;
+
+                        this.location.coords.longitude = pos.coords.longitude;
+
+                        console.log('se usó el api de geolocalizacion para obtener las coordenadas');
+                    }, err => {
+                        this.gettingLocation = false;
+                        this.errorStr = err.message;
+                    }); */
+                }
+                else
+                {                    
+                    console.log('se usó la ip publica para obtener las coordenadas');
+                }
+
+                     this.location.coords.latitude = lat;
+
+                    this.location.coords.longitude = lng;
+
+                    this.location.name = nameLocation;
             },
 
             fetchData(){
@@ -188,9 +204,9 @@
                 var skycons = new Skycons({'color':'white'});
 
                 
-                fetch(`/api/weather?lat=${this.location.coords.latitude}&lng=${this.location.coords.longitude}`)
+                //fetch(`/api/weather?lat=${this.location.coords.latitude}&lng=${this.location.coords.longitude}`)
 
-                //fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
+                fetch(`/api/weather/${this.location.coords.latitude}/${this.location.coords.longitude}`)
                     .then(response=>response.json())
                     .then(data=>{
                         this.currentTemperature.actual = Math.round(data.currently.temperature);
@@ -235,8 +251,15 @@
                 if(!"geolocation" in navigator)
                 {
                     this.errorStr = 'Geolocalizacion no disponible';
+                    this.availibleApiGeolocation = false;
                     return;
                 }
+
+                navigator.geolocation.getCurrentPosition((pos)  => {
+                    this.availibleApiGeolocation = true;
+                }, err => {
+                    this.availibleApiGeolocation = false;
+                });   
             }
 
         },

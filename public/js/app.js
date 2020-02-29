@@ -168,8 +168,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     this.checkGeolocation();
-    this.algoliaInit(); //this.setLocation();
-    //this.fetchData();
+    this.algoliaInit();
   },
   watch: {
     location: {
@@ -197,14 +196,18 @@ __webpack_require__.r(__webpack_exports__);
       },
       daily: [],
       location: {
-        name: '',
+        name: {
+          country: '',
+          administrative: '',
+          district: ''
+        },
         coords: {
           latitude: null,
           longitude: null
         }
       },
       errorStr: null,
-      gettingLocation: false
+      availibleApiGeolocation: false
     };
   },
   methods: {
@@ -225,46 +228,60 @@ __webpack_require__.r(__webpack_exports__);
           return;
         }
 
-        var formattedCity = suggestions[0].name + ', ' + suggestions[0].administrative + ', ' + suggestions[0].country;
-        var search = document.querySelector("#address");
-        search.value = formattedCity; //this.setLocation(formattedCity);
+        var nameLocation = {
+          district: suggestions[0].name,
+          administrative: suggestions[0].administrative ? suggestions[0].administrative : '',
+          country: suggestions[0].country
+        };
 
-        _this.setLocation(suggestions[0].latlng.lat, suggestions[0].latlng.lng, formattedCity);
+        _this.setLocation(suggestions[0].latlng.lat, suggestions[0].latlng.lng, nameLocation);
       });
       placesAutocomplete.on('change', function (e) {
-        var formattedCity = e.suggestion.name + ', ' + e.suggestion.administrative + ', ' + e.suggestion.country; //this.setLocation(formattedCity);                   
+        var nameLocation = {
+          district: e.suggestion.name,
+          administrative: e.suggestion.administrative ? e.suggestion.administrative : e.suggestion.hit.administrative[0],
+          country: e.suggestion.country
+        };
 
-        _this.setLocation(e.suggestion.latlng.lat, e.suggestion.latlng.lng, formattedCity);
+        _this.setLocation(e.suggestion.latlng.lat, e.suggestion.latlng.lng, nameLocation);
       });
     },
     //            setLocation(formattedCity)
     setLocation: function setLocation() {
       var lat = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
       var lng = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var formattedCity = arguments.length > 2 ? arguments[2] : undefined;
+      var nameLocation = arguments.length > 2 ? arguments[2] : undefined;
 
-      /*
-      navigator.geolocation.getCurrentPosition((pos)  => {
-          this.gettingLocation = false;
-          formattedCity != null ? this.location.name = formattedCity : null;
-          this.location.coords.latitude = pos.coords.latitude;
-          this.location.coords.longitude = pos.coords.longitude;
-      }, err => {
-          this.gettingLocation = false;
-          this.errorStr = err.message;
-      }); */
+      if (this.availibleApiGeolocation) {
+        console.log('se usó el api de geolocalizacion para obtener las coordenadas');
+        /*
+        this.gettingLocation = true;
+         navigator.geolocation.getCurrentPosition((pos)  => {
+             this.gettingLocation = false;
+             this.location.name = formattedCity;
+             this.location.coords.latitude = pos.coords.latitude;
+             this.location.coords.longitude = pos.coords.longitude;
+             console.log('se usó el api de geolocalizacion para obtener las coordenadas');
+        }, err => {
+            this.gettingLocation = false;
+            this.errorStr = err.message;
+        }); */
+      } else {
+        console.log('se usó la ip publica para obtener las coordenadas');
+      }
+
       this.location.coords.latitude = lat;
       this.location.coords.longitude = lng;
-      this.location.name = formattedCity;
+      this.location.name = nameLocation;
     },
     fetchData: function fetchData() {
       var _this2 = this;
 
       var skycons = new Skycons({
         'color': 'white'
-      });
-      fetch("/api/weather?lat=".concat(this.location.coords.latitude, "&lng=").concat(this.location.coords.longitude)) //fetch(`/api/weather/${this.location.lat}/${this.location.lng}`)
-      .then(function (response) {
+      }); //fetch(`/api/weather?lat=${this.location.coords.latitude}&lng=${this.location.coords.longitude}`)
+
+      fetch("/api/weather/".concat(this.location.coords.latitude, "/").concat(this.location.coords.longitude)).then(function (response) {
         return response.json();
       }).then(function (data) {
         _this2.currentTemperature.actual = Math.round(data.currently.temperature);
@@ -295,10 +312,19 @@ __webpack_require__.r(__webpack_exports__);
       return days[newDate.getDay()];
     },
     checkGeolocation: function checkGeolocation() {
+      var _this3 = this;
+
       if (!"geolocation" in navigator) {
         this.errorStr = 'Geolocalizacion no disponible';
+        this.availibleApiGeolocation = false;
         return;
       }
+
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        _this3.availibleApiGeolocation = true;
+      }, function (err) {
+        _this3.availibleApiGeolocation = false;
+      });
     }
   }
 });
@@ -789,19 +815,17 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "text-white mb-8" }, [
-    _vm.errorStr
-      ? _c("div", [
-          _vm._v(
-            "\n        Sorry, but the following error\n        occurred: " +
-              _vm._s(_vm.errorStr) +
-              "\n    "
-          )
-        ])
-      : _vm._e(),
-    _vm._v(" "),
-    _vm.gettingLocation
-      ? _c("div", [_c("i", [_vm._v("Getting your location...")])])
-      : _vm._e(),
+    _c("div", { staticClass: "text-balck mb-8" }, [
+      _vm.errorStr
+        ? _c("div", { attrs: { clas: "" } }, [
+            _vm._v(
+              "\n        Sorry, but the following error\n        occurred: " +
+                _vm._s(_vm.errorStr) +
+                "\n        "
+            )
+          ])
+        : _vm._e()
+    ]),
     _vm._v(" "),
     _vm._m(0),
     _vm._v(" "),
@@ -837,7 +861,16 @@ var render = function() {
                   _vm._v(_vm._s(_vm.currentTemperature.summary))
                 ]),
                 _vm._v(" "),
-                _c("div", [_vm._v(" " + _vm._s(_vm.location.name))])
+                _c("div", [
+                  _vm._v(
+                    " " +
+                      _vm._s(_vm.location.name.district) +
+                      ", " +
+                      _vm._s(_vm.location.name.administrative) +
+                      ", " +
+                      _vm._s(_vm.location.name.country)
+                  )
+                ])
               ])
             ]),
             _vm._v(" "),
