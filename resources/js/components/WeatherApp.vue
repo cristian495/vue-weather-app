@@ -123,7 +123,7 @@
                 container: document.querySelector('#address')
                 }).configure({
                     type:'city',
-                    hitsPerPage: 1,
+                    hitsPerPage: 4,
                     aroundLatLngViaIP: true
                 });               
                 
@@ -213,7 +213,7 @@
 
                         this.currentTemperature.feels = Math.round(data.currently.apparentTemperature);
 
-                        this.currentTemperature.humidity = data.currently.humidity*100;
+                        this.currentTemperature.humidity = Math.round(data.currently.humidity*100);
 
                         this.currentTemperature.summary = data.currently.summary;
 

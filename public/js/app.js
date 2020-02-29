@@ -220,7 +220,7 @@ __webpack_require__.r(__webpack_exports__);
         container: document.querySelector('#address')
       }).configure({
         type: 'city',
-        hitsPerPage: 1,
+        hitsPerPage: 4,
         aroundLatLngViaIP: true
       });
       placesAutocomplete.search().then(function (suggestions) {
@@ -286,7 +286,7 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (data) {
         _this2.currentTemperature.actual = Math.round(data.currently.temperature);
         _this2.currentTemperature.feels = Math.round(data.currently.apparentTemperature);
-        _this2.currentTemperature.humidity = data.currently.humidity * 100;
+        _this2.currentTemperature.humidity = Math.round(data.currently.humidity * 100);
         _this2.currentTemperature.summary = data.currently.summary;
         _this2.currentTemperature.icon = _this2.toKebabCase(data.currently.icon);
         _this2.daily = data.daily.data;
